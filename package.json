@@ -1,0 +1,20 @@
+{
+  "name": "spotify-app",
+  "version": "1.0.0",
+  "description": "A Spotify app that handles authentication and fetches top items from the Spotify API.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "express": "^4.17.1",
+    "querystring": "^0.2.0"
+  },
+  "engines": {
+    "node": "14.x"
+  },
+  "heroku": {
+    "postbuild": "npm install"
+  }
+}
