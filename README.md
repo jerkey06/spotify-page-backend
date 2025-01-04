@@ -1,5 +1,3 @@
-# README.md
-
 # Spotify App
 
 This project is a Spotify application that allows users to authenticate and fetch their top items from the Spotify API.
