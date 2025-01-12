@@ -23,56 +23,60 @@ app.get('/login', (req, res) => {
         }));
 });
 
+// Handle OAuth callback and exchange authorization code for access token
 app.get('/callback', async (req, res) => {
-    const code = req.query.code || null;
+    const code = req.query.code || null;  // Get authorization code from query params
 
     try {
+        // Request access token from Spotify
         const response = await axios.post('https://accounts.spotify.com/api/token',
         querystring.stringify({
-            grant_type: 'authorization_code',
-            code: code,
-            redirect_uri: REDIRECT_URI,
+            grant_type: 'authorization_code',  // Specify the grant type
+            code: code,  // Include the authorization code
+            redirect_uri: REDIRECT_URI,  // Include the redirect URI
         }),
         {
             Headers: {
-                'authorization': 'Basic ' + (new Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64')),
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'authorization': 'Basic ' + (new Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64')),  // Base64 encode client ID and secret
+                'Content-Type': 'application/x-www-form-urlencoded'  // Set content type
             }
-        }
+        });
 
-    );
-
-    const { access_token, refresh_token } = response.data;
-    res.redirect(`${FRONTEND_URI}/?access_token=${access_token}&refresh_token=${refresh_token}`);
+        // Extract access and refresh tokens from response
+        const { access_token, refresh_token } = response.data;
+        // Redirect to frontend with tokens as query params
+        res.redirect(`${FRONTEND_URI}/?access_token=${access_token}&refresh_token=${refresh_token}`);
     } catch (error) {
-        console.error('Errror in /callback', error.message);
-        res.redirect(`${FRONTEND_URI}/?error=invalid_token`);
+        console.error('Error in /callback', error.message);  // Log error message
+        res.redirect(`${FRONTEND_URI}/?error=invalid_token`);  // Redirect to frontend with error
     }
 });
 
+// Refresh access token using refresh token
 app.get('/refresh_token', async (req, res) => {
-    const { refresh_token } = req.query;
+    const { refresh_token } = req.query;  // Get refresh token from query params
 
     try {
+        // Request new access token from Spotify
         const response = await axios.post('https://accounts.spotify.com/api/token',
         querystring.stringify({
-            grant_type: 'refresh_token',
-            refresh_token: refresh_token,
+            grant_type: 'refresh_token',  // Specify the grant type
+            refresh_token: refresh_token  // Include the refresh token
         }),
         {
             Headers: {
-                'authorization': 'Basic ' + (new Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64')),
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'authorization': 'Basic ' + (new Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64')),  // Base64 encode client ID and secret
+                'Content-Type': 'application/x-www-form-urlencoded'  // Set content type
             }
-        }
+        });
 
-    );
-
-    const { access_token } = response.data;
-    res.json({ access_token });
+        // Extract new access token from response
+        const { access_token } = response.data;
+        // Send new access token as JSON response
+        res.json({ access_token });
     } catch (error) {
-        console.error('Errror in /refresh_token', error.message);
-        res.status(400).json({ error: 'invalid_token' });
+        console.error('Error in /refresh_token', error.message);  // Log error message
+        res.status(500).json({ error: 'Failed to refresh token' });  // Send error response
     }
 });
 
@@ -99,7 +103,8 @@ app.get('/top-items/:type', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 8888;
+// Start the Express server
+const PORT = process.env.PORT || 8888;  // Get port from environment or default to 8888
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);  // Log server start message
 });
